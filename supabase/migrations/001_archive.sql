@@ -2,7 +2,7 @@
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text not null default 'Интендант',
-  role text not null default 'viewer' check (role in ('viewer', 'admin'))
+  role text not null default 'viewer' check (role in ('viewer', 'Sklad', 'admin'))
 );
 alter table public.profiles enable row level security;
 create policy "Own profile" on public.profiles for select to authenticated using (id = auth.uid());
@@ -13,6 +13,13 @@ set search_path = public as $$
 $$;
 revoke all on function public.is_admin() from public;
 grant execute on function public.is_admin() to anon, authenticated;
+
+create function public.is_warehouse_operator() returns boolean language sql stable security definer
+set search_path = public as $$
+  select exists(select 1 from public.profiles where id = auth.uid() and role in ('Sklad', 'admin'));
+$$;
+revoke all on function public.is_warehouse_operator() from public;
+grant execute on function public.is_warehouse_operator() to anon, authenticated;
 
 create table public.site_content (
   id integer primary key check (id = 1),
@@ -74,7 +81,7 @@ create function public.set_quantity(p_id text, p_quantity bigint, p_version inte
 language plpgsql security definer set search_path = public as $$
 declare changed integer;
 begin
-  if not public.is_admin() then raise exception 'Forbidden' using errcode = '42501'; end if;
+  if not public.is_warehouse_operator() then raise exception 'Forbidden' using errcode = '42501'; end if;
   if p_quantity < 0 or p_quantity > 1000000000 then raise exception 'Invalid quantity'; end if;
   if p_version = -1 then
     insert into public.warehouse_items(item_id, total_quantity, updated_by)

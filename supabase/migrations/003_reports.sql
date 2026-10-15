@@ -10,13 +10,13 @@ create table if not exists public.reports (
 );
 create index if not exists reports_created_idx on public.reports(created_at desc, id desc);
 alter table public.reports enable row level security;
-create policy "Admin reads reports" on public.reports for select to authenticated using (public.is_admin());
+create policy "Admin reads reports" on public.reports for select to authenticated using (public.is_warehouse_operator());
 
 -- Search both report text and the author's saved name without PostgREST filter interpolation.
 create function public.search_reports(p_query text default '', p_page integer default 0)
 returns setof public.reports language plpgsql stable security definer set search_path = public as $$
 begin
-  if not public.is_admin() then raise exception 'Forbidden' using errcode = '42501'; end if;
+  if not public.is_warehouse_operator() then raise exception 'Forbidden' using errcode = '42501'; end if;
   return query select r.* from public.reports r
     where position(lower(trim(p_query)) in lower(r.body || ' ' || r.author)) > 0
     order by r.created_at desc,r.id desc limit 50 offset greatest(0,least(p_page,100000))*50;
@@ -41,7 +41,7 @@ grant execute on function public.latest_report() to anon, authenticated;
 
 create function public.submit_report(p_body text) returns void language plpgsql security definer set search_path = public as $$
 begin
-  if not public.is_admin() then raise exception 'Forbidden' using errcode = '42501'; end if;
+  if not public.is_warehouse_operator() then raise exception 'Forbidden' using errcode = '42501'; end if;
   if length(trim(p_body)) not between 1 and 12000 then raise exception 'Invalid report'; end if;
   insert into public.reports(user_id,author,kind,body) values(auth.uid(),public.report_author(),'manual',trim(p_body));
 end;
@@ -60,7 +60,7 @@ create function public.set_quantity(p_id text, p_quantity bigint, p_version inte
 language plpgsql security definer set search_path = public as $$
 declare previous bigint; delta bigint; changed integer; amount bigint; chests bigint; stacks bigint; loose bigint; units text[] := '{}'; actor text; description text;
 begin
-  if not public.is_admin() then raise exception 'Forbidden' using errcode = '42501'; end if;
+  if not public.is_warehouse_operator() then raise exception 'Forbidden' using errcode = '42501'; end if;
   if p_quantity < 0 or p_quantity > 1000000000 or p_stack not in (1,16,64,99) then raise exception 'Invalid quantity'; end if;
   select total_quantity into previous from public.warehouse_items where item_id=p_id for update;
   previous := coalesce(previous,0);
