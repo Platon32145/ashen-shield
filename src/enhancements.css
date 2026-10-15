@@ -1,0 +1,46 @@
+/* Native controls and scrollbars follow the same dark bronze palette. */
+:root{color-scheme:dark;scrollbar-color:#776748 #141a14;scrollbar-width:thin}
+.admin-dock{left:auto;right:22px;bottom:22px;transform:none}
+.admin-navigation{display:flex;gap:24px;align-items:center;justify-content:flex-end;padding-top:14px;padding-bottom:14px;border-bottom:1px solid var(--line);font-size:12px}
+.admin-navigation a{color:var(--muted)}.admin-navigation a.active{color:var(--gold)}
+.admin-navigation button{display:flex;gap:8px;align-items:center;border:1px solid #63563b;border-radius:3px;background:#26291f;color:var(--gold);padding:9px 13px}
+.reports-page{padding-top:48px;padding-bottom:65px;min-height:70vh}.reports-page h1{font-size:34px;margin-top:22px}.reports-page>p{font-size:12px}
+.report-list{display:grid;gap:18px;margin-top:25px}.report-list .report p{white-space:pre-wrap;font-size:13px;margin:20px 0;overflow-wrap:anywhere}.archive blockquote{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:720px){.admin-dock{width:auto;max-width:calc(100% - 24px);right:12px;bottom:12px}.admin-dock>span{display:none}.admin-navigation{justify-content:space-between;gap:12px;font-size:10px}.reports-page h1{font-size:28px}}
+*{scrollbar-width:thin;scrollbar-color:#776748 #141a14}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#141a14;border-radius:8px}
+::-webkit-scrollbar-thumb{background:#776748;border:2px solid #141a14;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:#b39a66}
+::-webkit-scrollbar-corner{background:#141a14}
+input[type=checkbox]{appearance:none;width:15px;height:15px;border:1px solid #667052;border-radius:3px;background:#171e15;display:inline-grid;place-content:center;flex-shrink:0;cursor:pointer}
+input[type=checkbox]:checked{background:var(--gold);border-color:var(--gold)}
+input[type=checkbox]:checked:after{content:'';width:7px;height:4px;border-left:2px solid #1d2518;border-bottom:2px solid #1d2518;transform:rotate(-45deg) translateY(-1px)}
+select option{background:#1a2117;color:#d2dbc7}
+.brand>span,.footer-brand{text-transform:uppercase}
+.brand>span{white-space:normal;overflow-wrap:anywhere;max-width:290px}
+.copy-editor details{border:1px solid #3b4532;border-radius:4px;padding:15px;margin:18px 0;background:#161d14}
+.copy-editor summary{cursor:pointer;font-size:12px;color:var(--gold);line-height:1.6}
+.copy-editor details[open]>summary{padding-bottom:12px;border-bottom:1px solid #35402c}
+.copy-editor details>label{color:#a6b095;font-size:10px;overflow-wrap:anywhere}
+.hero-copy>*{animation:hero-enter .9s cubic-bezier(.2,.65,.25,1) both}
+.hero-copy>h1{animation-delay:.1s}.hero-copy>p{animation-delay:.2s}.hero-actions{animation-delay:.3s}.hero-note{animation-delay:.4s}
+.heraldry{animation:hero-enter 1.3s .15s both}
+.heraldry .large{animation:crest-float 7s ease-in-out infinite}
+.orbit.inner{animation:orbit-turn 100s linear infinite}
+.crest-glow{animation:glow-breathe 8s ease-in-out infinite}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.65,.25,1),transform .8s cubic-bezier(.2,.65,.25,1)}
+.reveal.revealed{opacity:1;transform:translateY(0)}
+.rules article:nth-child(2){transition-delay:.12s}.rules article:nth-child(3){transition-delay:.24s}
+.rules article svg{transition:transform .35s,color .35s}
+.rules article:hover svg{transform:translateY(-4px);color:#e2cd9a}
+.text-link svg,.primary svg{transition:transform .25s ease}
+.text-link:hover svg,.primary:hover svg{transform:translateX(4px)}
+.overlay{animation:overlay-enter .2s ease both}.modal{animation:dialog-enter .3s cubic-bezier(.2,.65,.25,1) both}
+@keyframes hero-enter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes crest-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes orbit-turn{from{transform:rotate(24deg)}to{transform:rotate(384deg)}}
+@keyframes glow-breathe{0%,100%{opacity:.5;transform:scale(.9)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes overlay-enter{from{opacity:0}to{opacity:1}}
+@keyframes dialog-enter{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}

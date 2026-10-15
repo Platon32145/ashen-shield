@@ -1,0 +1,36 @@
+import { preview } from 'vite'
+import { chromium } from '@playwright/test'
+import assert from 'node:assert/strict'
+const server = await preview({ preview: { port: 4173, strictPort: true } })
+const browser = await chromium.launch({ ...(process.env.BROWSER_CHANNEL ? { channel: process.env.BROWSER_CHANNEL } : {}), headless: true })
+try {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
+  const errors = []
+  page.on('pageerror', e => errors.push(e.message))
+  await page.goto('http://localhost:4173', { waitUntil: 'networkidle' })
+  await page.getByRole('heading', { level: 1 }).waitFor()
+  await page.screenshot({ path: 'test-results/home-desktop.png', fullPage: true })
+  await page.getByRole('navigation').getByRole('link', { name: /Склад/ }).click()
+  await page.getByRole('textbox', { name: 'Поиск предмета' }).fill('minecraft:diamond')
+  assert.ok(await page.locator('tbody tr').count() > 0)
+  assert.equal(await page.locator('tbody button').count(), 0, 'Guest cannot edit')
+  await page.getByRole('button', { name: 'Вход в архив' }).click()
+  await page.getByRole('button', { name: /Открыть локальный редактор/ }).click()
+  const row = page.locator('tbody tr').filter({ hasText: 'minecraft:diamond ·' })
+  await row.getByRole('button').last().click()
+  await page.getByLabel('Всего, штук').fill('84')
+  await page.getByRole('button', { name: /Сохранить количество/ }).click()
+  await page.getByRole('status').waitFor()
+  assert.ok((await row.textContent()).includes('1 стак. + 20 шт.'))
+  await page.reload({ waitUntil: 'networkidle' })
+  assert.ok((await page.locator('tbody tr').filter({ hasText: 'minecraft:diamond ·' }).textContent()).includes('84'))
+  await page.screenshot({ path: 'test-results/warehouse-desktop.png', fullPage: true })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.screenshot({ path: 'test-results/warehouse-mobile.png', fullPage: true })
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No page overflow on mobile')
+  await page.getByRole('navigation').getByRole('link', { name: 'Главная' }).click()
+  await page.screenshot({ path: 'test-results/home-mobile.png', fullPage: true })
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Home mobile overflow')
+  assert.deepEqual(errors, [])
+  console.log('Browser checks passed: home, search, guest permissions, quantity editing, persistence, mobile overflow. Screenshots: test-results/')
+} finally { await browser.close(); await new Promise(r => server.httpServer.close(r)) }

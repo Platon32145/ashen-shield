@@ -1,0 +1,7 @@
+import { useState } from 'react'
+import type { Content } from '../lib/store'
+import { defaultCopy, type CopyKey } from '../lib/copy'
+export default function ContentEditor({ draft, setDraft }: { draft: Content; setDraft: (c: Content) => void }) {
+  const [query, setQuery] = useState('')
+  return <div className="copy-editor"><p className="muted">Название гильдии меняется в шапке, подвале и заголовке вкладки. Ниже доступны подписи, заголовки секций, девизы и тексты склада.</p><label>Название гильдии<input required maxLength={80} value={draft.copy['ПЕПЕЛЬНЫЙ ЩИТ']} onChange={e => setDraft({ ...draft, copy: { ...draft.copy, 'ПЕПЕЛЬНЫЙ ЩИТ': e.target.value } })}/></label><details><summary>Оформление и подписи сайта</summary><label>Найти текст<input type="search" placeholder="Например: крепость…" value={query} onChange={e => setQuery(e.target.value)}/></label>{(Object.keys(defaultCopy) as CopyKey[]).filter(k => k !== 'ПЕПЕЛЬНЫЙ ЩИТ' && `${k} ${draft.copy[k]}`.toLowerCase().includes(query.toLowerCase())).map(k => <label key={k}>{k}<textarea required rows={2} maxLength={1000} value={draft.copy[k]} onChange={e => setDraft({ ...draft, copy: { ...draft.copy, [k]: e.target.value } })}/></label>)}</details><details><summary>Описание правил кодекса</summary>{draft.ruleDescriptions.map((text, i) => <label key={i}>Описание правила {i + 1}<textarea required rows={3} maxLength={2000} value={text} onChange={e => setDraft({ ...draft, ruleDescriptions: draft.ruleDescriptions.map((s, j) => j === i ? e.target.value : s) })}/></label>)}</details></div>
+}
